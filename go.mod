@@ -1,4 +1,4 @@
-module github.com/cdieu/DS2023-chittychat.git
+module DS2023-chittychat
 
 go 1.21.3
 

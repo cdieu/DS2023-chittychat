@@ -1,11 +1,12 @@
 syntax = "proto3";
 
-package simpleGuide;
+package chittychat;
 
-option go_package = "grpc/proto";
+option go_package = "Chitty-Chat/proto/proto";
 
 message SentMessage {
   string clientName = 1;
+  string message = 2;
 }
 
 message ReceivedMessage {
@@ -15,7 +16,8 @@ message ReceivedMessage {
 }
 
 //This part of the code is the R3 requirement: R3: The Chitty-Chat service has to broadcast every published message, together with the current logical timestamp, to all participants in the system, by using gRPC. It is an implementation decision left to the students, whether a Vector Clock or a Lamport timestamp is sent.
+//A
 service Chat {
-  rpc SendAndReceive(stream SentMessage) returns (stream ReceivedMessage);
+  rpc SendAndReceive(stream SentMessage) returns (stream SentMessage);
 }
 

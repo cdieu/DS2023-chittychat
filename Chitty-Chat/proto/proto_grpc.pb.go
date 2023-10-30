@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v4.24.4
-// source: chitty-chat/proto/proto.proto
+// source: Chitty-Chat/proto/proto.proto
 
 package proto
 
@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Chat_SendAndReceive_FullMethodName = "/simpleGuide.Chat/SendAndReceive"
+	Chat_SendAndReceive_FullMethodName = "/chittychat.Chat/SendAndReceive"
 )
 
 // ChatClient is the client API for Chat service.
@@ -48,7 +48,7 @@ func (c *chatClient) SendAndReceive(ctx context.Context, opts ...grpc.CallOption
 
 type Chat_SendAndReceiveClient interface {
 	Send(*SentMessage) error
-	Recv() (*ReceivedMessage, error)
+	Recv() (*SentMessage, error)
 	grpc.ClientStream
 }
 
@@ -60,8 +60,8 @@ func (x *chatSendAndReceiveClient) Send(m *SentMessage) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *chatSendAndReceiveClient) Recv() (*ReceivedMessage, error) {
-	m := new(ReceivedMessage)
+func (x *chatSendAndReceiveClient) Recv() (*SentMessage, error) {
+	m := new(SentMessage)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func _Chat_SendAndReceive_Handler(srv interface{}, stream grpc.ServerStream) err
 }
 
 type Chat_SendAndReceiveServer interface {
-	Send(*ReceivedMessage) error
+	Send(*SentMessage) error
 	Recv() (*SentMessage, error)
 	grpc.ServerStream
 }
@@ -110,7 +110,7 @@ type chatSendAndReceiveServer struct {
 	grpc.ServerStream
 }
 
-func (x *chatSendAndReceiveServer) Send(m *ReceivedMessage) error {
+func (x *chatSendAndReceiveServer) Send(m *SentMessage) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -126,7 +126,7 @@ func (x *chatSendAndReceiveServer) Recv() (*SentMessage, error) {
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Chat_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "simpleGuide.Chat",
+	ServiceName: "chittychat.Chat",
 	HandlerType: (*ChatServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
@@ -137,5 +137,5 @@ var Chat_ServiceDesc = grpc.ServiceDesc{
 			ClientStreams: true,
 		},
 	},
-	Metadata: "chitty-chat/proto/proto.proto",
+	Metadata: "Chitty-Chat/proto/proto.proto",
 }
