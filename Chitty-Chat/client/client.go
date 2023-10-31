@@ -21,7 +21,7 @@ import (
 var (
 	//clientPort = flag.Int("cPort", 0, "client port number")
 	user       = flag.String("user", "defaultUser", "client name")
-	serverPort = flag.Int("sPort", 0, "server port number (should match the port used for the server)")
+	serverPort = flag.Int("port", 0, "server port number (should match the port used for the server)")
 	timestamp  = lamport.LamportTime{Client: *user}
 )
 
