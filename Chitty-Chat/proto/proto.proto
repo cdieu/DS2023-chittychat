@@ -7,6 +7,7 @@ option go_package = "Chitty-Chat/proto/proto";
 message SentMessage {
   string clientName = 1;
   string message = 2;
+  uint32 time = 3;
 }
 
 message ReceivedMessage {

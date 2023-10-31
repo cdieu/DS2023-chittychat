@@ -7,6 +7,7 @@ import (
 	"net"
 	"strconv"
 
+	"DS2023-chittychat/Chitty-Chat/lamport"
 	proto "DS2023-chittychat/Chitty-Chat/proto"
 
 	"google.golang.org/grpc"
@@ -21,13 +22,16 @@ type Server struct {
 	port int
 }
 
+var servername = flag.String("name", "defaultserver", "server name")
 var port = flag.Int("port", 0, "server port number")
+var time int
+var lam = lamport.LamportTime{Client: *servername}
 
 func main() {
 	flag.Parse()
 
 	server := &Server{
-		name: "dima",
+		name: *servername,
 		port: *port,
 	}
 
@@ -71,14 +75,26 @@ func (s *Server) SendAndReceive(stream proto.Chat_SendAndReceiveServer) error {
 		if err == io.EOF {
 			return nil
 		}
+
+		if receiver.Time < lam.GetTimestamp() {
+			receiver.Time = lam.GetTimestamp()
+		}
+		lam.Increment()
+		time++
 		// If an error is not null, then there exists an error, and we return it.
 		if err != nil {
 			return err
 		}
-		log.Printf("Client with name %s sent %s\n", receiver.ClientName, receiver.Message)
+		log.Printf("RECEIVING: Server received new message, making timestamp: %d\n", time)
 		messages = append(messages, *receiver)
 
 		//This block broadcasts the messages
+		if receiver.Time < lam.GetTimestamp() {
+			receiver.Time = lam.GetTimestamp()
+		}
+		lam.Increment()
+		time++
+		log.Printf("BROADCASTING: Client with name %s sent %s, making timestamp: %d\n", receiver.ClientName, receiver.Message, time)
 		for _, msg := range messages {
 			if err := stream.Send(&msg); err != nil {
 				return err

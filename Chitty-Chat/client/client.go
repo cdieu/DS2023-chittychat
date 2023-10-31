@@ -1,6 +1,7 @@
 package main
 
 import (
+	"DS2023-chittychat/Chitty-Chat/lamport"
 	"DS2023-chittychat/Chitty-Chat/proto"
 	"bufio"
 	"context"
@@ -19,7 +20,9 @@ import (
 
 var (
 	//clientPort = flag.Int("cPort", 0, "client port number")
+	user       = flag.String("user", "defaultUser", "client name")
 	serverPort = flag.Int("sPort", 5454, "server port number (should match the port used for the server)")
+	timestamp  = lamport.LamportTime{Client: *user}
 )
 
 func main() {
@@ -48,6 +51,10 @@ func main() {
 				close(waitchannel)
 				return
 			}
+			if in.Time < timestamp.GetTimestamp() {
+				in.Time = timestamp.GetTimestamp()
+			}
+			timestamp.Increment()
 			if err != nil {
 				log.Fatalf("Failed to receive a note : %v", err)
 			}
@@ -67,11 +74,14 @@ func main() {
 		}
 
 		// Print the user input
-		//log.Println("> ", userInput)
+		log.Println("> ", userInput)
+
+		timestamp.Increment()
 
 		if err := stream.Send(&proto.SentMessage{
-			ClientName: "christine",
+			ClientName: *user,
 			Message:    userInput,
+			Time:       timestamp.GetTimestamp(),
 		}); err != nil {
 			log.Fatalf("Failed to send a note: %v", err)
 		}
