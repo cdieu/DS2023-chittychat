@@ -58,7 +58,7 @@ func startServer(server *Server) {
 	log.Printf("Started server at port: %d\n", server.port)
 
 	// Register the grpc server and serve its listener
-	proto.RegisterChatServer(grpcServer, &Server{})
+	//proto.RegisterChatServer(grpcServer, &Server{})
 	serveError := grpcServer.Serve(listener)
 	if serveError != nil {
 		log.Fatalf("Could not serve listener")
