@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"io"
 	"log"
@@ -18,8 +19,8 @@ var messages = []proto.SentMessage{}
 
 type Server struct {
 	proto.UnimplementedChatServer
-	name string
-	port int
+	name    string
+	port    int
 	Clients []string
 }
 
@@ -27,7 +28,6 @@ var servername = flag.String("name", "defaultserver", "server name")
 var port = flag.Int("port", 0, "server port number")
 var time int
 var lam = lamport.LamportTime{Client: *servername}
-
 
 func main() {
 	flag.Parse()
@@ -104,6 +104,34 @@ func (s *Server) SendAndReceive(stream proto.Chat_SendAndReceiveServer) error {
 			}
 		}
 	}
+}
+
+func (c *Server) Join(ctx context.Context, in *proto.JoinRequest) (*proto.JoinResponse, error) {
+	if in.Time < lam.GetTimestamp() {
+		in.Time = lam.GetTimestamp()
+	}
+	lam.Increment()
+	time++
+
+	log.Printf("Client with name %s wants to join, making timestamp: %d\n", in.ClientName, time)
+	return &proto.JoinResponse{
+		ServerName: c.name,
+		Time:       lam.GetTimestamp(),
+	}, nil
+}
+
+func (s *Server) Leave(ctx context.Context, in *proto.LeftRequest, opts ...grpc.CallOption) (*proto.LeftResponse, error) {
+	if in.Time < lam.GetTimestamp() {
+		in.Time = lam.GetTimestamp()
+	}
+	lam.Increment()
+	time++
+
+	log.Printf("Client with name %s wants to leave, making timestamp: %d\n", in.ClientName, time)
+	return &proto.LeftResponse{
+		ServerName: s.name,
+		Time:       lam.GetTimestamp(),
+	}, nil
 }
 
 func connectToServer() (proto.ChatClient, error) {

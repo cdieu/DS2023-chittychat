@@ -21,12 +21,12 @@ uint32 time = 2;
 }
 
 message joinResponse {
-string clientName = 1;
+string serverName = 1;
 uint32 time = 2;
 }
 
 message leftResponse {
-string clientName = 1;
+string serverName = 1;
 uint32 time = 2;
 }
 
@@ -34,7 +34,7 @@ uint32 time = 2;
 
 service Chat {
   rpc SendAndReceive(stream SentMessage) returns (stream SentMessage);
-  rpc Join(joinRequest) returns (joinResponse)
-  rpc Leave(leftRequest) returns (leftResponse)
+  rpc Join(joinRequest) returns (joinResponse);
+  rpc Leave(leftRequest) returns (leftResponse);
 }
 

@@ -20,6 +20,8 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	Chat_SendAndReceive_FullMethodName = "/chittychat.Chat/SendAndReceive"
+	Chat_Join_FullMethodName           = "/chittychat.Chat/Join"
+	Chat_Leave_FullMethodName          = "/chittychat.Chat/Leave"
 )
 
 // ChatClient is the client API for Chat service.
@@ -27,6 +29,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ChatClient interface {
 	SendAndReceive(ctx context.Context, opts ...grpc.CallOption) (Chat_SendAndReceiveClient, error)
+	Join(ctx context.Context, in *JoinRequest, opts ...grpc.CallOption) (*JoinResponse, error)
+	Leave(ctx context.Context, in *LeftRequest, opts ...grpc.CallOption) (*LeftResponse, error)
 }
 
 type chatClient struct {
@@ -68,11 +72,31 @@ func (x *chatSendAndReceiveClient) Recv() (*SentMessage, error) {
 	return m, nil
 }
 
+func (c *chatClient) Join(ctx context.Context, in *JoinRequest, opts ...grpc.CallOption) (*JoinResponse, error) {
+	out := new(JoinResponse)
+	err := c.cc.Invoke(ctx, Chat_Join_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *chatClient) Leave(ctx context.Context, in *LeftRequest, opts ...grpc.CallOption) (*LeftResponse, error) {
+	out := new(LeftResponse)
+	err := c.cc.Invoke(ctx, Chat_Leave_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ChatServer is the server API for Chat service.
 // All implementations must embed UnimplementedChatServer
 // for forward compatibility
 type ChatServer interface {
 	SendAndReceive(Chat_SendAndReceiveServer) error
+	Join(context.Context, *JoinRequest) (*JoinResponse, error)
+	Leave(context.Context, *LeftRequest) (*LeftResponse, error)
 	mustEmbedUnimplementedChatServer()
 }
 
@@ -82,6 +106,12 @@ type UnimplementedChatServer struct {
 
 func (UnimplementedChatServer) SendAndReceive(Chat_SendAndReceiveServer) error {
 	return status.Errorf(codes.Unimplemented, "method SendAndReceive not implemented")
+}
+func (UnimplementedChatServer) Join(context.Context, *JoinRequest) (*JoinResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Join not implemented")
+}
+func (UnimplementedChatServer) Leave(context.Context, *LeftRequest) (*LeftResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Leave not implemented")
 }
 func (UnimplementedChatServer) mustEmbedUnimplementedChatServer() {}
 
@@ -122,13 +152,58 @@ func (x *chatSendAndReceiveServer) Recv() (*SentMessage, error) {
 	return m, nil
 }
 
+func _Chat_Join_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(JoinRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChatServer).Join(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Chat_Join_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChatServer).Join(ctx, req.(*JoinRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Chat_Leave_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LeftRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChatServer).Leave(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Chat_Leave_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChatServer).Leave(ctx, req.(*LeftRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Chat_ServiceDesc is the grpc.ServiceDesc for Chat service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Chat_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "chittychat.Chat",
 	HandlerType: (*ChatServer)(nil),
-	Methods:     []grpc.MethodDesc{},
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Join",
+			Handler:    _Chat_Join_Handler,
+		},
+		{
+			MethodName: "Leave",
+			Handler:    _Chat_Leave_Handler,
+		},
+	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "SendAndReceive",
