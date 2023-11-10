@@ -10,15 +10,31 @@ message SentMessage {
   uint32 time = 3;
 }
 
-message ReceivedMessage {
-  string serverName = 1;
-  string time = 2;
-  
+message joinRequest {
+string clientName = 1;
+uint32 time = 2;
+}
+
+message leftRequest {
+string clientName = 1;
+uint32 time = 2;
+}
+
+message joinResponse {
+string clientName = 1;
+uint32 time = 2;
+}
+
+message leftResponse {
+string clientName = 1;
+uint32 time = 2;
 }
 
 //This part of the code is the R3 requirement: R3: The Chitty-Chat service has to broadcast every published message, together with the current logical timestamp, to all participants in the system, by using gRPC. It is an implementation decision left to the students, whether a Vector Clock or a Lamport timestamp is sent.
-//A
+
 service Chat {
   rpc SendAndReceive(stream SentMessage) returns (stream SentMessage);
+  rpc Join(joinRequest) returns (joinResponse)
+  rpc Leave(leftRequest) returns (leftResponse)
 }
 

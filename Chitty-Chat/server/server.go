@@ -20,12 +20,14 @@ type Server struct {
 	proto.UnimplementedChatServer
 	name string
 	port int
+	Clients []string
 }
 
 var servername = flag.String("name", "defaultserver", "server name")
 var port = flag.Int("port", 0, "server port number")
 var time int
 var lam = lamport.LamportTime{Client: *servername}
+
 
 func main() {
 	flag.Parse()
@@ -70,6 +72,7 @@ func (s *Server) SendAndReceive(stream proto.Chat_SendAndReceiveServer) error {
 	for {
 		//This block receives the messages
 		// create a receiver variable for the stream
+		//This receiver variable represents a SentMessage from proto: clientName, Message, time
 		receiver, err := stream.Recv()
 		// If err is the exception of end of file exception, then return nil
 		if err == io.EOF {
