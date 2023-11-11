@@ -93,6 +93,10 @@ func main() {
 
 		// Close connection
 		if userInput == "quit" {
+			c.Leave(context.Background(), &proto.LeftRequest{
+				ClientName: *user,
+				Time:       timestamp.GetTimestamp(),
+			})
 			break
 		}
 

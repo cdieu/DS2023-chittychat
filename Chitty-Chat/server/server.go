@@ -114,30 +114,32 @@ func (c *Server) Join(ctx context.Context, in *proto.JoinRequest) (*proto.JoinRe
 	lam.Increment()
 	time++
 
-	messageToSend := "Participant " + in.ClientName + " joined Chitty-Chat at Lamport time " + strconv.FormatUint(uint64(in.Time), 10)
+	messageToSend := "Participant " + in.ClientName + " joined Chitty-Chat at Lamport time " + strconv.FormatUint(uint64(lam.GetTimestamp()), 10)
 	messages = append(messages, proto.SentMessage{ClientName: "Server broadcast", Message: messageToSend})
 
-	//log.Printf("BROADCASTING: Participant %s joined Chitty-Chat at Lamport time %d\n", in.ClientName, time)
+	log.Printf("BROADCASTING: Participant %s joined Chitty-Chat at Lamport time %d\n", in.ClientName, time)
 	return &proto.JoinResponse{
 		ServerName: c.name,
 		Time:       lam.GetTimestamp(),
 	}, nil
 }
 
-/*
-func (s *Server) Leave(ctx context.Context, in *proto.LeftRequest, opts ...grpc.CallOption) (*proto.LeftResponse, error) {
+func (s *Server) Leave(ctx context.Context, in *proto.LeftRequest) (*proto.LeftResponse, error) {
 	if in.Time < lam.GetTimestamp() {
 		in.Time = lam.GetTimestamp()
 	}
 	lam.Increment()
 	time++
 
-	log.Printf("Client with name %s wants to leave, making timestamp: %d\n", in.ClientName, time)
+	messageToSend := "Participant " + in.ClientName + " left Chitty-Chat at Lamport time " + strconv.FormatUint(uint64(lam.GetTimestamp()), 10)
+	messages = append(messages, proto.SentMessage{ClientName: "Server broadcast", Message: messageToSend})
+
+	log.Printf("BROADCASTING: Participant %s left Chitty-Chat at Lamport time %d\n", in.ClientName, time)
 	return &proto.LeftResponse{
 		ServerName: s.name,
 		Time:       lam.GetTimestamp(),
 	}, nil
-}*/
+}
 
 func connectToServer() (proto.ChatClient, error) {
 	// Dial the server at the specified port.
