@@ -26,6 +26,7 @@ var (
 )
 
 func main() {
+
 	// Parse the flags to get the port for the client
 	flag.Parse()
 	//Create a connection variable, setting up connection to server
@@ -37,16 +38,23 @@ func main() {
 	}
 	defer conn.Close()
 
-	//Create a client
+	//Create a client for the service Chat
+
 	c := proto.NewChatClient(conn)
-	
+
+	//Join method
+	c.Join(context.Background(), &proto.JoinRequest{
+		ClientName: *user,
+		Time:       timestamp.GetTimestamp(),
+	})
+
 	//For client to know when to type
 	log.Println("Enter your input")
 
 	//Create stream variable to begin sending and receiving. c is type ChatClient, a client of our grpc Chat
 	stream, _ := c.SendAndReceive(context.Background())
 
-	//Create a channel to continue the function until the reading is done. 
+	//Create a channel to continue the function until the reading is done.
 	waitchannel := make(chan struct{})
 
 	//Start a goroutine that runs the function
@@ -60,13 +68,14 @@ func main() {
 				close(waitchannel)
 				return
 			}
+
 			//Check for the highest current lamport timestamp
-			if in.Time < timestamp.GetTimestamp() {
-				in.Time = timestamp.GetTimestamp()
-			}
+			//if in.Time < timestamp.GetTimestamp() {
+				//in.Time = timestamp.GetTimestamp()
+			//}
 			//Increase timestamp
 			timestamp.Increment()
-			
+
 			if err != nil {
 				log.Fatalf("Failed to receive a note : %v", err)
 			}

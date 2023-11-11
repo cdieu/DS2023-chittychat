@@ -58,7 +58,8 @@ func startServer(server *Server) {
 	log.Printf("Started server at port: %d\n", server.port)
 
 	// Register the grpc server and serve its listener
-	//proto.RegisterChatServer(grpcServer, &Server{})
+	proto.RegisterChatServer(grpcServer, &Server{})
+	
 	serveError := grpcServer.Serve(listener)
 	if serveError != nil {
 		log.Fatalf("Could not serve listener")
@@ -120,6 +121,7 @@ func (c *Server) Join(ctx context.Context, in *proto.JoinRequest) (*proto.JoinRe
 	}, nil
 }
 
+/*
 func (s *Server) Leave(ctx context.Context, in *proto.LeftRequest, opts ...grpc.CallOption) (*proto.LeftResponse, error) {
 	if in.Time < lam.GetTimestamp() {
 		in.Time = lam.GetTimestamp()
@@ -132,7 +134,7 @@ func (s *Server) Leave(ctx context.Context, in *proto.LeftRequest, opts ...grpc.
 		ServerName: s.name,
 		Time:       lam.GetTimestamp(),
 	}, nil
-}
+}*/
 
 func connectToServer() (proto.ChatClient, error) {
 	// Dial the server at the specified port.
