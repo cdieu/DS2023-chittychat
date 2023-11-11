@@ -58,8 +58,8 @@ func startServer(server *Server) {
 	log.Printf("Started server at port: %d\n", server.port)
 
 	// Register the grpc server and serve its listener
-	proto.RegisterChatServer(grpcServer, &Server{})
-	
+	proto.RegisterChatServer(grpcServer, server)
+
 	serveError := grpcServer.Serve(listener)
 	if serveError != nil {
 		log.Fatalf("Could not serve listener")
@@ -114,7 +114,10 @@ func (c *Server) Join(ctx context.Context, in *proto.JoinRequest) (*proto.JoinRe
 	lam.Increment()
 	time++
 
-	log.Printf("Client with name %s wants to join, making timestamp: %d\n", in.ClientName, time)
+	messageToSend := "Participant " + in.ClientName + " joined Chitty-Chat at Lamport time " + strconv.FormatUint(uint64(in.Time), 10)
+	messages = append(messages, proto.SentMessage{ClientName: "Server broadcast", Message: messageToSend})
+
+	//log.Printf("BROADCASTING: Participant %s joined Chitty-Chat at Lamport time %d\n", in.ClientName, time)
 	return &proto.JoinResponse{
 		ServerName: c.name,
 		Time:       lam.GetTimestamp(),

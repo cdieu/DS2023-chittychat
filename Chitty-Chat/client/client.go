@@ -42,7 +42,7 @@ func main() {
 
 	c := proto.NewChatClient(conn)
 
-	//Join method
+	//Join method is called when new chat client is created
 	c.Join(context.Background(), &proto.JoinRequest{
 		ClientName: *user,
 		Time:       timestamp.GetTimestamp(),
@@ -70,9 +70,9 @@ func main() {
 			}
 
 			//Check for the highest current lamport timestamp
-			//if in.Time < timestamp.GetTimestamp() {
-				//in.Time = timestamp.GetTimestamp()
-			//}
+			if in.Time < timestamp.GetTimestamp() {
+				in.Time = timestamp.GetTimestamp()
+			}
 			//Increase timestamp
 			timestamp.Increment()
 
